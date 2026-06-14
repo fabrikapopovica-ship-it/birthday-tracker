@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>B-Day Tracker Hub</title>
+    <!-- Tailwind CSS with custom configuration for dark mode -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    screens: {
+                        'xs': '400px',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti for celebrations -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom scrollbar for modern aesthetics */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        /* Hide scrollbar for utility touch classes */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col antialiased transition-colors duration-300">
+
+    <header class="bg-white/90 dark:bg-slate-900/90 border-b border-slate-100 dark:border-slate-800/80 sticky top-0 z-40 backdrop-blur-md transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Brand Logo and Title -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="bg-gradient-to-tr from-indigo-500 to-purple-500 text-white p-2 rounded-xl shadow-md shadow-indigo-100 dark:shadow-none shrink-0">
+                    <!-- Gift Icon SVG -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5a2 2 0 10-2 2h2zm0 0h4m-4 0H8m12 3a2 2 0 100-4H4a2 2 0 100 4m16 0v10a2 2 0 01-2 2H6a2 2 0 01-2-2V10m16 0H4" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 id="title-brand" class="text-base sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">B-Day Tracker</h1>
+                    <p id="subtitle-brand" class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium hidden sm:block">Ваш персональный календарь праздников</p>
+                </div>
+            </div>
+
+            <!-- Header Controls (Theme, Language, Add Button) -->
+            <div class="flex items-center gap-1.5 sm:gap-3">
+                <!-- Theme Toggler -->
+                <button onclick="toggleTheme()" id="btn-theme-toggle" class="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl border border-slate-200 dark:border-slate-700/80 transition flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 shadow-sm" title="Сменить тему">
+                    <!-- Sun Icon (shows in dark mode) -->
+                    <svg id="theme-icon-sun" class="h-5 w-5 hidden text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 2.293a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zm4 5.707a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM14 15.707a1 1 0 010 1.414l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 0zm-4 2.293a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-4-2.293a1 1 0 01-1.414 0l-.707-.707a1 1 0 111.414-1.414l.707.707a1 1 0 010 1.414zM2 10a1 1 0 011-1h1a1 1 0 110 2H3a1 1 0 01-1-1zm2-5.707a1 1 0 010-1.414l.707-.707a1 1 0 111.414 1.414l-.707.707a1 1 0 01-1.414 0zM10 6a4 4 0 100 8 4 4 0 000-8z" clip-rule="evenodd" />
+                    </svg>
+                    <!-- Moon Icon (shows in light mode) -->
+                    <svg id="theme-icon-moon" class="h-5 w-5 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                    </svg>
+                </button>
+
+                <!-- Language Switcher (RU / EN) -->
+                <div class="flex items-center bg-slate-100 dark:bg-slate-850 p-0.5 rounded-xl border border-slate-200 dark:border-slate-750">
+                    <button onclick="setLanguage('ru')" id="lang-btn-ru" class="px-2 py-1 text-[10px] sm:text-xs font-bold rounded-lg transition">RU</button>
+                    <button onclick="setLanguage('en')" id="lang-btn-en" class="px-2 py-1 text-[10px] sm:text-xs font-bold rounded-lg transition">EN</button>
+                </div>
+                
+                <!-- Add B-Day Button -->
+                <button onclick="openAddModal()" id="btn-add-main" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 h-9 sm:h-10 rounded-xl shadow-lg shadow-indigo-100 dark:shadow-none transition flex items-center justify-center gap-1">
+                    <span class="text-sm sm:text-base">➕</span>
+                    <span class="hidden xs:inline" id="btn-add-text">Добавить</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+        
+        <!-- Statistics Section Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <div class="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-sm flex items-center gap-2 sm:gap-3 transition-colors">
+                <div class="bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 p-2 sm:p-2.5 rounded-xl text-sm sm:text-base">👥</div>
+                <div>
+                    <p id="stat-total-label" class="text-[10px] text-slate-400 dark:text-slate-500 font-medium uppercase tracking-wider">Всего именинников</p>
+                    <h3 id="stat-total" class="text-sm sm:text-lg font-bold text-slate-800 dark:text-slate-100">0</h3>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-sm flex items-center gap-2 sm:gap-3 transition-colors">
+                <div class="bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 p-2 sm:p-2.5 rounded-xl text-sm sm:text-base">🎉</div>
+                <div>
+                    <p id="stat-this-month-label" class="text-[10px] text-slate-400 dark:text-slate-500 font-medium uppercase tracking-wider">В этом месяце</p>
+                    <h3 id="stat-this-month" class="text-sm sm:text-lg font-bold text-slate-800 dark:text-slate-100">0</h3>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-sm flex items-center gap-2 sm:gap-3 transition-colors">
+                <div class="bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 p-2 sm:p-2.5 rounded-xl text-sm sm:text-base">💖</div>
+                <div>
+                    <p id="stat-upcoming-label" class="text-[10px] text-slate-400 dark:text-slate-500 font-medium uppercase tracking-wider">Ближайшие (30 дн.)</p>
+                    <h3 id="stat-upcoming" class="text-sm sm:text-lg font-bold text-slate-800 dark:text-slate-100">0</h3>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-sm flex items-center gap-2 sm:gap-3 transition-colors">
+                <div class="bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 p-2 sm:p-2.5 rounded-xl text-sm sm:text-base">🎂</div>
+                <div>
+                    <p id="stat-today-label" class="text-[10px] text-slate-400 dark:text-slate-500 font-medium uppercase tracking-wider">Сегодня празднуют</p>
+                    <h3 id="stat-today" class="text-sm sm:text-lg font-bold text-rose-600 dark:text-rose-400 animate-pulse">0 🎉</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Two Column Content Layout (Main List & Sidebar) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+            
+            <!-- Left Side (Cards and Search filters) -->
+            <div class="lg:col-span-2 space-y-4 sm:space-y-6">
+                
+                <!-- Search and Filters bar -->
+                <div class="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-sm flex flex-col sm:flex-row gap-3 justify-between items-center transition-colors">
+                    <div class="relative w-full sm:w-72">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">🔍</span>
+                        <input type="text" id="search-input" oninput="applyFilters()" placeholder="Поиск по имени..." class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-850 dark:text-slate-100 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                    </div>
+                    
+                    <!-- Swipe-friendly Category scroll layout -->
+                    <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar pb-1 sm:pb-0 -mx-3 px-3 sm:mx-0 sm:px-0">
+                        <button onclick="filterCategory('all')" id="filter-all" class="filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition whitespace-nowrap">Все</button>
+                        <button onclick="filterCategory('family')" id="filter-family" class="filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-250 dark:hover:bg-slate-700 transition whitespace-nowrap">👨‍👩‍👦 Семья</button>
+                        <button onclick="filterCategory('friends')" id="filter-friends" class="filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-250 dark:hover:bg-slate-700 transition whitespace-nowrap">🤝 Друзья</button>
+                        <button onclick="filterCategory('work')" id="filter-work" class="filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-250 dark:hover:bg-slate-700 transition whitespace-nowrap">💼 Работа</button>
+                        <button onclick="filterCategory('other')" id="filter-other" class="filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-250 dark:hover:bg-slate-700 transition whitespace-nowrap">✨ Другое</button>
+                    </div>
+                </div>
+
+                <!-- Today is B-Day Special Highlight -->
+                <div id="today-celebration-box" class="hidden bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 p-0.5 rounded-3xl shadow-xl shadow-purple-100 dark:shadow-none">
+                    <div class="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[22px] flex flex-col md:flex-row items-center justify-between gap-4 transition-colors">
+                        <div class="flex items-center gap-3 sm:gap-4 text-center md:text-left flex-col md:flex-row">
+                            <div class="text-3xl sm:text-4xl animate-bounce">🎁</div>
+                            <div>
+                                <h4 id="today-celebration-title" class="text-base sm:text-lg font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-indigo-600 dark:from-pink-400 dark:to-indigo-400">Сегодня есть именинники!</h4>
+                                <p id="today-names-list" class="text-slate-600 dark:text-slate-300 text-xs sm:text-sm mt-1 font-medium">Загрузка...</p>
+                            </div>
+                        </div>
+                        <button onclick="triggerConfetti()" id="btn-congratulate" class="w-full md:w-auto bg-gradient-to-r from-pink-500 to-purple-500 hover:scale-105 transform active:scale-95 text-white font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-md shadow-pink-100 dark:shadow-none transition-all">
+                            Поздравить! 🎉
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main dynamic birthday lists container -->
+                <div class="space-y-3 sm:space-y-4">
+                    <div class="flex items-center justify-between px-1">
+                        <h2 class="text-base sm:text-lg font-bold text-slate-850 dark:text-slate-100 flex items-center gap-2">
+                            <span id="list-header-title">Календарный список</span>
+                            <span id="list-count" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full font-semibold">0</span>
+                        </h2>
+                        <!-- Sorting Selection Menu -->
+                        <select id="sort-select" onchange="applyFilters()" class="bg-transparent border-none text-xs font-semibold text-indigo-600 dark:text-indigo-400 focus:outline-none cursor-pointer">
+                            <option value="upcoming" id="sort-upcoming-opt" class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">По приближению</option>
+                            <option value="alphabet" id="sort-alphabet-opt" class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">По алфавиту А-Я</option>
+                            <option value="age" id="sort-age-opt" class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">По возрасту</option>
+                        </select>
+                    </div>
+
+                    <!-- Birthday Grid Cards -->
+                    <div id="birthdays-container" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                        <!-- Dynamic code insert -->
+                    </div>
+
+                    <!-- Empty state showcase -->
+                    <div id="empty-state" class="hidden text-center py-12 sm:py-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 shadow-sm p-6 transition-colors">
+                        <span class="text-4xl sm:text-5xl">🎂</span>
+                        <h3 id="empty-title" class="text-base sm:text-lg font-bold text-slate-700 dark:text-slate-200 mt-4">Никого не найдено</h3>
+                        <p id="empty-subtitle" class="text-xs sm:text-sm text-slate-400 dark:text-slate-500 mt-1.5 max-w-sm mx-auto">Нажмите кнопку «Добавить» в правом верхнем углу, чтобы занести своего первого именинника в базу!</p>
+                        <button onclick="openAddModal()" id="empty-btn" class="mt-4 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-semibold text-xs px-4 py-2 rounded-xl transition">Добавить сейчас</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side (Mini Calendar, Astro statistics, Backups) -->
+            <div class="space-y-6">
+                <!-- Monthly Mini-Calendar widget -->
+                <div class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-sm transition-colors">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-slate-800 dark:text-slate-100 text-xs sm:text-sm flex items-center gap-2">
+                            <span id="calendar-widget-title">📅 Календарь событий</span>
+                        </h3>
+                        <span id="calendar-month-name" class="text-[10px] sm:text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2.5 py-1 rounded-lg">-</span>
+                    </div>
+                    <div id="calendar-days-header" class="grid grid-cols-7 gap-1 text-center text-[10px] sm:text-xs font-medium text-slate-400 dark:text-slate-500 mb-2">
+                        <!-- Filled dynamically by JS -->
+                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-1">
+                        <!-- Filled dynamically by JS -->
+                    </div>
+                    <div class="mt-3 flex items-center gap-2 text-[10px] text-slate-400 dark:text-slate-500 justify-end">
+                        <span class="inline-block w-2 h-2 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-full"></span>
+                        <span>День Рождения</span>
+                    </div>
+                </div>
+
+                <!-- Astro Widget -->
+                <div class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-sm transition-colors">
+                    <h3 id="astro-widget-title" class="font-bold text-slate-800 dark:text-slate-100 text-xs sm:text-sm mb-4">🔮 Астрология & Статистика</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-xs border-b border-slate-50 dark:border-slate-800/60 pb-2">
+                            <span id="astro-top-zodiac-label" class="text-slate-500 dark:text-slate-400">Популярный знак зодиака:</span>
+                            <span id="astro-top-zodiac" class="font-semibold text-slate-800 dark:text-slate-200">-</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs border-b border-slate-50 dark:border-slate-800/60 pb-2">
+                            <span id="astro-average-age-label" class="text-slate-500 dark:text-slate-400">Средний возраст компании:</span>
+                            <span id="astro-average-age" class="font-semibold text-slate-800 dark:text-slate-200">-</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs pb-1">
+                            <span id="astro-next-jubilee-label" class="text-slate-500 dark:text-slate-400">Ближайший юбилей:</span>
+                            <span id="astro-next-jubilee" class="font-semibold text-indigo-600 dark:text-indigo-400">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backup Data Widgets -->
+                <div class="bg-slate-100/60 dark:bg-slate-900/40 p-4 sm:p-5 rounded-2xl border border-slate-200/50 dark:border-slate-800/80 transition-colors">
+                    <h3 id="backup-widget-title" class="font-bold text-slate-800 dark:text-slate-100 text-xs sm:text-sm mb-1.5">💾 Резервная копия базы</h3>
+                    <p id="backup-widget-desc" class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">Экспортируйте ваши записи в файл или загрузите их обратно, чтобы не потерять.</p>
+                    <div class="flex gap-2">
+                        <button onclick="exportData()" id="export-btn" class="flex-1 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-250 text-xs font-bold py-2 px-2.5 rounded-xl transition shadow-sm flex items-center justify-center gap-1.5 h-10">
+                            📥 Экспорт
+                        </button>
+                        <button onclick="triggerImport()" id="import-btn" class="flex-1 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-250 text-xs font-bold py-2 px-2.5 rounded-xl transition shadow-sm flex items-center justify-center gap-1.5 h-10">
+                            📤 Импорт
+                        </button>
+                        <input type="file" id="import-file" class="hidden" accept=".json" onchange="importData(event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL FOR ADDING AND EDITING BIRTHDAYS -->
+    <div id="add-modal" class="fixed inset-0 bg-slate-950/50 dark:bg-slate-950/85 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4 hidden transition-opacity duration-300">
+        <div class="bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl max-w-md w-full shadow-2xl border-t sm:border border-slate-100 dark:border-slate-800/80 transform translate-y-full sm:translate-y-0 sm:scale-95 opacity-0 transition-all duration-300 max-h-[92vh] sm:max-h-[90vh] overflow-y-auto" id="add-modal-content">
+            <div class="p-5 sm:p-6 pb-8 sm:pb-6">
+                <!-- Modal header -->
+                <div class="flex justify-between items-center mb-5 sm:mb-6">
+                    <h3 id="modal-title" class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">🎉 Добавить День Рождения</h3>
+                    <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all h-8 w-8 flex items-center justify-center">✕</button>
+                </div>
+
+                <form id="birthday-form" onsubmit="saveBirthday(event)" class="space-y-4">
+                    <input type="hidden" id="edit-id">
+                    
+                    <!-- Form Name -->
+                    <div>
+                        <label id="label-form-name" class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Имя именинника</label>
+                        <input type="text" id="form-name" required placeholder="Например, Александр Иванов" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-slate-850 dark:text-slate-100 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                    </div>
+
+                    <!-- Date & Category Row -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label id="label-form-date" class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Дата рождения</label>
+                            <input type="date" id="form-date" required class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-slate-850 dark:text-slate-100 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                        </div>
+                        <div>
+                            <label id="label-form-category" class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Категория</label>
+                            <select id="form-category" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-slate-850 dark:text-slate-100 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                                <option value="family" id="form-category-family" class="bg-white dark:bg-slate-900">👨‍👩‍👦 Семья</option>
+                                <option value="friends" id="form-category-friends" class="bg-white dark:bg-slate-900">🤝 Друзья</option>
+                                <option value="work" id="form-category-work" class="bg-white dark:bg-slate-900">💼 Работа</option>
+                                <option value="other" id="form-category-other" class="bg-white dark:bg-slate-900">✨ Другое</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Image Uploader -->
+                    <div>
+                        <label id="label-form-photo" class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Фотография именинника (или эмодзи ниже)</label>
+                        <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl border border-slate-100 dark:border-slate-850">
+                            <div id="photo-preview-container" class="relative w-12 h-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-center overflow-hidden shadow-sm group shrink-0">
+                                <span id="photo-preview-placeholder" class="text-xl text-slate-300 dark:text-slate-600">👤</span>
+                                <img id="photo-preview-img" class="hidden w-full h-full object-cover" src="" alt="Превью">
+                                <button type="button" id="remove-photo-btn" onclick="clearSelectedPhoto()" class="hidden absolute inset-0 bg-slate-950/70 text-white text-[9px] font-bold items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">Удалить</button>
+                            </div>
+                            <div class="flex-grow">
+                                <button type="button" onclick="triggerPhotoSelect()" class="bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-950 text-indigo-700 dark:text-indigo-400 text-xs font-bold py-2 px-3 rounded-xl transition-all border border-indigo-100 dark:border-indigo-900/60 flex items-center gap-1.5">
+                                    <span id="btn-upload-photo-text">📸 Загрузить фото</span>
+                                </button>
+                                <p id="upload-photo-sub" class="text-[9px] text-slate-400 dark:text-slate-500 mt-1">Оптимизируется автоматически</p>
+                                <input type="file" id="form-photo-input" accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
+                                <input type="hidden" id="form-photo-data" value="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Emoji Selector options if no photo -->
+                    <div>
+                        <label id="label-form-emoji" class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Или выберите эмодзи (если нет фото)</label>
+                        <div class="flex gap-2 flex-wrap max-h-24 overflow-y-auto p-1 border border-slate-100 dark:border-slate-850 rounded-xl" id="emoji-selectors">
+                            <!-- Populated with JS -->
+                        </div>
+                        <input type="hidden" id="form-emoji" value="🎂">
+                    </div>
+
+                    <!-- Input Notes -->
+                    <div>
+                        <label id="label-form-notes" class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Заметки / Идеи подарка</label>
+                        <textarea id="form-notes" rows="2" placeholder="Любит научную фантастику, мечтает о телескопе..." class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-slate-850 dark:text-slate-100 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none"></textarea>
+                    </div>
+
+                    <!-- Buttons Actions footer -->
+                    <div class="flex items-center gap-2.5 pt-2">
+                        <button type="button" onclick="closeAddModal()" id="form-cancel-btn" class="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 font-semibold text-xs py-3 rounded-xl transition-all h-11">
+                            Отмена
+                        </button>
+                        <button type="submit" id="form-save-btn" class="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-xs py-3 rounded-xl transition-all shadow-lg shadow-indigo-100 dark:shadow-none h-11">
+                            Сохранить
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM CONFIRM DIALOG FOR DELETIONS -->
+    <div id="delete-modal" class="fixed inset-0 bg-slate-950/50 dark:bg-slate-950/85 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4 hidden transition-opacity duration-300">
+        <div class="bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl max-w-sm w-full shadow-2xl border-t sm:border border-slate-100 dark:border-slate-800/80 transform translate-y-full sm:translate-y-0 sm:scale-95 opacity-0 transition-all duration-300" id="delete-modal-content">
+            <div class="p-6 text-center pb-8 sm:pb-6">
+                <div class="mx-auto w-12 h-12 bg-rose-50 dark:bg-rose-950/40 text-rose-500 dark:text-rose-400 rounded-full flex items-center justify-center text-xl mb-4">⚠️</div>
+                <h3 id="delete-confirm-title" class="text-base font-bold text-slate-800 dark:text-slate-100">Удалить запись?</h3>
+                <p id="delete-confirm-subtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">Вы уверены, что хотите безвозвратно удалить эту запись из вашего календаря?</p>
+                <div class="flex items-center gap-2.5 mt-6">
+                    <button onclick="closeDeleteModal()" id="delete-cancel-btn" class="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 font-semibold text-xs py-3 rounded-xl transition-all h-10">Отмена</button>
+                    <button onclick="confirmDelete()" id="delete-confirm-btn" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-3 rounded-xl shadow-lg shadow-rose-100 dark:shadow-none transition-all h-10">Удалить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-50 space-y-2 pointer-events-none max-w-[90%]"></div>
+
+    <footer class="bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800/60 py-6 mt-12 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 text-center text-[10px] sm:text-xs text-slate-400 dark:text-slate-500">
+            <p id="footer-text">© 2026 Мой Календарь Дней Рождения. Все права сохранены.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Безопасная обертка для работы с хранилищем (защита от крашей на разных хостингах и в разных браузерах)
+        const SafeStorage = {
+            getItem(key) {
+                try {
+                    return localStorage.getItem(key);
+                } catch (e) {
+                    console.warn("Storage access is blocked or restricted in this environment:", e);
+                    return null;
+                }
+            },
+            setItem(key, value) {
+                try {
+                    localStorage.setItem(key, value);
+                } catch (e) {
+                    console.warn("Unable to write to storage:", e);
+                }
+            }
+        };
+
+        const translations = {
+            ru: {
+                title: "B-Day Tracker",
+                subtitle: "Ваш персональный календарь праздников",
+                addBtn: "Добавить",
+                statTotal: "Всего именинников",
+                statMonth: "В этом месяце",
+                statUpcoming: "Ближайшие (30 дн.)",
+                statToday: "Сегодня празднуют",
+                searchPlaceholder: "Поиск по имени...",
+                filterAll: "Все",
+                filterFamily: "👨‍👩‍👦 Семья",
+                filterFriends: "🤝 Друзья",
+                filterWork: "💼 Работа",
+                filterOther: "✨ Другое",
+                todayCelebrationTitle: "Сегодня есть именинники!",
+                todayCelebrationSubtitle: "Загрузка...",
+                congratulateBtn: "Поздравить! 🎉",
+                calendarListHeader: "Календарный список",
+                sortUpcoming: "По приближению",
+                sortAlphabet: "По алфавиту А-Я",
+                sortAge: "По возрасту",
+                emptyTitle: "Календарь пуст",
+                emptySubtitle: "Нажмите кнопку «Добавить» в правом верхнем углу, чтобы занести своего первого именинника в базу!",
+                emptyBtn: "Добавить сейчас",
+                calendarWidgetTitle: "📅 Календарь событий",
+                astroTitle: "🔮 Астрология & Статистика",
+                astroTopZodiac: "Популярный знак зодиака:",
+                astroAverageAge: "Средний возраст компании:",
+                astroNextJubilee: "Ближайший юбилей:",
+                backupTitle: "💾 Резервная копия базы",
+                backupSubtitle: "Экспортируйте ваши записи в файл или загрузите их обратно, чтобы не потерять.",
+                exportBtn: "📥 Экспорт",
+                importBtn: "📤 Импорт",
+
+                addModalTitle: "🎉 Добавить День Рождения",
+                editModalTitle: "✏️ Редактировать День Рождения",
+                labelName: "Имя именинника",
+                placeholderName: "Например, Александр Иванов",
+                labelDate: "Дата рождения",
+                labelCategory: "Категория",
+                labelPhoto: "Фотография именинника (или эмодзи ниже)",
+                uploadPhotoBtn: "📸 Загрузить фото",
+                uploadPhotoSub: "Оптимизируется автоматически",
+                labelEmoji: "Или выберите эмодзи (если нет фото)",
+                labelNotes: "Заметки / Идеи подарка",
+                placeholderNotes: "Любит научную фантастику, мечтает о телескопе...",
+                cancelBtn: "Отмена",
+                saveBtn: "Сохранить",
+                
+                toastSuccessAdd: "Именинник успешно добавлен!",
+                toastSuccessEdit: "Запись успешно обновлена!",
+                toastPhotoAdded: "Фотография добавлена!",
+                toastSuccessBackup: "Резервная копия успешно создана!",
+                toastSuccessImport: "База данных успешно импортирована!",
+                toastErrorImport: "Неверный формат файла.",
+                toastErrorRead: "Ошибка чтения файла.",
+                toastDeleted: "Запись успешно удалена",
+                
+                themeToastLight: "Включена светлая тема ☀️",
+                themeToastDark: "Включена темная тема 🌙",
+
+                deleteConfirmTitle: "Удалить запись?",
+                deleteConfirmSubtitle: "Вы уверены, что хотите безвозвратно удалить эту запись из вашего календаря?",
+                deleteCancelBtn: "Отмена",
+                deleteConfirmBtn: "Удалить",
+
+                todayCelebrationsListPrefix: "Сегодня празднуют:",
+                todayCelebrationsListSuffix: "! Обязательно поздравьте их! 🎉",
+                ageWordYear: "год",
+                ageWordYears1: "года",
+                ageWordYears2: "лет",
+                willTurn: "Исполнится",
+                yearsOld: "лет",
+                inDays: "через",
+                daysShort: "дн.",
+                celebratingToday: "СЕГОДНЯ ПРАЗДНУЕТ! 🎉",
+                footerText: "© 2026 Мой Календарь Дней Рождения. Все права сохранены.",
+                catFamily: "Семья",
+                catFriends: "Друзья",
+                catWork: "Работа",
+                catOther: "Другое",
+                zodiacAries: "Овен",
+                zodiacTaurus: "Телец",
+                zodiacGemini: "Близнецы",
+                zodiacCancer: "Рак",
+                zodiacLeo: "Лев",
+                zodiacVirgo: "Дева",
+                zodiacLibra: "Весы",
+                zodiacScorpio: "Скорпион",
+                zodiacSagittarius: "Стрелец",
+                zodiacCapricorn: "Козерог",
+                zodiacAquarius: "Водолей",
+                zodiacPisces: "Рыбы",
+                closestJubileeNone: "Пока нет"
+            },
+            en: {
+                title: "B-Day Tracker",
+                subtitle: "Your personal celebration calendar",
+                addBtn: "Add",
+                statTotal: "Total Birthdays",
+                statMonth: "This Month",
+                statUpcoming: "Upcoming (30 days)",
+                statToday: "Celebrating Today",
+                searchPlaceholder: "Search by name...",
+                filterAll: "All",
+                filterFamily: "👨‍👩‍👦 Family",
+                filterFriends: "🤝 Friends",
+                filterWork: "💼 Work",
+                filterOther: "✨ Other",
+                todayCelebrationTitle: "Someone is celebrating today!",
+                todayCelebrationSubtitle: "Loading...",
+                congratulateBtn: "Congratulate! 🎉",
+                calendarListHeader: "Calendar List",
+                sortUpcoming: "By proximity",
+                sortAlphabet: "Alphabetical A-Z",
+                sortAge: "By age",
+                emptyTitle: "Calendar is empty",
+                emptySubtitle: "Click the \"Add\" button in the top right corner to add your first birthday to the database!",
+                emptyBtn: "Add Now",
+                calendarWidgetTitle: "📅 Event Calendar",
+                astroTitle: "🔮 Astrology & Stats",
+                astroTopZodiac: "Popular Zodiac sign:",
+                astroAverageAge: "Average age of company:",
+                astroNextJubilee: "Next Jubilee:",
+                backupTitle: "💾 Database Backup",
+                backupSubtitle: "Export your entries to a file or import them back to avoid losing them.",
+                exportBtn: "📥 Export",
+                importBtn: "📤 Import",
+
+                addModalTitle: "🎉 Add Birthday",
+                editModalTitle: "✏️ Edit Birthday",
+                labelName: "Person's Name",
+                placeholderName: "E.g., Alexander Ivanov",
+                labelDate: "Date of Birth",
+                labelCategory: "Category",
+                labelPhoto: "Birthday Photo (or choose emoji below)",
+                uploadPhotoBtn: "📸 Upload Photo",
+                uploadPhotoSub: "Optimized automatically",
+                labelEmoji: "Or choose an emoji (if no photo)",
+                labelNotes: "Notes / Gift Ideas",
+                placeholderNotes: "Likes sci-fi, dreams of a telescope...",
+                cancelBtn: "Cancel",
+                saveBtn: "Save",
+                
+                toastSuccessAdd: "Birthday successfully added!",
+                toastSuccessEdit: "Entry successfully updated!",
+                toastPhotoAdded: "Photo added!",
+                toastSuccessBackup: "Backup successfully created!",
+                toastSuccessImport: "Database successfully imported!",
+                toastErrorImport: "Invalid file format.",
+                toastErrorRead: "Error reading file.",
+                toastDeleted: "Entry successfully deleted",
+                
+                themeToastLight: "Light theme enabled ☀️",
+                themeToastDark: "Dark theme enabled 🌙",
+
+                deleteConfirmTitle: "Delete entry?",
+                deleteConfirmSubtitle: "Are you sure you want to permanently delete this entry from your calendar?",
+                deleteCancelBtn: "Cancel",
+                deleteConfirmBtn: "Delete",
+
+                todayCelebrationsListPrefix: "Today's birthdays:",
+                todayCelebrationsListSuffix: "! Make sure to congratulate them! 🎉",
+                ageWordYear: "year old",
+                ageWordYears1: "years old",
+                ageWordYears2: "years old",
+                willTurn: "Will turn",
+                yearsOld: "years old",
+                inDays: "in",
+                daysShort: "days",
+                celebratingToday: "CELEBRATING TODAY! 🎉",
+                footerText: "© 2026 My Birthday Calendar. All rights reserved.",
+                catFamily: "Family",
+                catFriends: "Friends",
+                catWork: "Work",
+                catOther: "Other",
+                zodiacAries: "Aries",
+                zodiacTaurus: "Taurus",
+                zodiacGemini: "Gemini",
+                zodiacCancer: "Cancer",
+                zodiacLeo: "Leo",
+                zodiacVirgo: "Virgo",
+                zodiacLibra: "Libra",
+                zodiacScorpio: "Scorpio",
+                zodiacSagittarius: "Sagittarius",
+                zodiacCapricorn: "Capricorn",
+                zodiacAquarius: "Aquarius",
+                zodiacPisces: "Pisces",
+                closestJubileeNone: "None yet"
+            }
+        };
+
+        let birthdays = [];
+        let currentFilter = 'all';
+        let currentLang = SafeStorage.getItem('bday_tracker_lang') || 'ru';
+        let deleteTargetId = null;
+
+        const EMOJI_OPTIONS = ["🎂", "🥳", "🎈", "🎁", "👑", "🦄", "🦁", "🦊", "🐶", "🐱", "🐨", "🚀", "🎸", "👾", "🍕", "💖"];
+
+        window.onload = function() {
+            initTheme();
+            loadBirthdays();
+            migrateCategories();
+            initLanguage();
+            renderEmojiSelectors();
+            applyFilters();
+            renderCalendar();
+            triggerTodayCelebrations();
+        };
+
+        // Load data safely from SafeStorage
+        function loadBirthdays() {
+            const saved = SafeStorage.getItem('bday_tracker_data');
+            if (saved) {
+                try {
+                    birthdays = JSON.parse(saved);
+                } catch(e) {
+                    birthdays = [];
+                }
+            } else {
+                birthdays = [];
+                saveToLocalStorage();
+            }
+        }
+
+        // Migrate old Russian category keys to standardized layout keys
+        function migrateCategories() {
+            let changed = false;
+            birthdays.forEach(item => {
+                if (item.category === 'Семья') { item.category = 'family'; changed = true; }
+                else if (item.category === 'Друзья') { item.category = 'friends'; changed = true; }
+                else if (item.category === 'Работа') { item.category = 'work'; changed = true; }
+                else if (item.category === 'Другое') { item.category = 'other'; changed = true; }
+            });
+            if (changed) {
+                saveToLocalStorage();
+            }
+        }
+
+        function saveToLocalStorage() {
+            SafeStorage.setItem('bday_tracker_data', JSON.stringify(birthdays));
+            updateStats();
+        }
+
+        function initLanguage() {
+            translateUI();
+        }
+
+        // Translation getter
+        function t(key) {
+            return translations[currentLang][key] || translations['ru'][key] || key;
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            SafeStorage.setItem('bday_tracker_lang', lang);
+            translateUI();
+            applyFilters();
+            renderCalendar();
+            triggerTodayCelebrations();
+        }
+
+        function translateUI() {
+            const elementsToTranslate = [
+                { id: 'title-brand', key: 'title' },
+                { id: 'subtitle-brand', key: 'subtitle' },
+                { id: 'btn-add-text', key: 'addBtn' },
+                { id: 'stat-total-label', key: 'statTotal' },
+                { id: 'stat-this-month-label', key: 'statMonth' },
+                { id: 'stat-upcoming-label', key: 'statUpcoming' },
+                { id: 'stat-today-label', key: 'statToday' },
+                { id: 'filter-all', key: 'filterAll' },
+                { id: 'filter-family', key: 'filterFamily' },
+                { id: 'filter-friends', key: 'filterFriends' },
+                { id: 'filter-work', key: 'filterWork' },
+                { id: 'filter-other', key: 'filterOther' },
+                { id: 'list-header-title', key: 'calendarListHeader' },
+                { id: 'sort-upcoming-opt', key: 'sortUpcoming' },
+                { id: 'sort-alphabet-opt', key: 'sortAlphabet' },
+                { id: 'sort-age-opt', key: 'sortAge' },
+                { id: 'empty-title', key: 'emptyTitle' },
+                { id: 'empty-subtitle', key: 'emptySubtitle' },
+                { id: 'empty-btn', key: 'emptyBtn' },
+                { id: 'calendar-widget-title', key: 'calendarWidgetTitle' },
+                { id: 'astro-widget-title', key: 'astroTitle' },
+                { id: 'astro-top-zodiac-label', key: 'astroTopZodiac' },
+                { id: 'astro-average-age-label', key: 'astroAverageAge' },
+                { id: 'astro-next-jubilee-label', key: 'astroNextJubilee' },
+                { id: 'backup-widget-title', key: 'backupTitle' },
+                { id: 'backup-widget-desc', key: 'backupSubtitle' },
+                { id: 'export-btn', key: 'exportBtn' },
+                { id: 'import-btn', key: 'importBtn' },
+
+                { id: 'label-form-name', key: 'labelName' },
+                { id: 'label-form-date', key: 'labelDate' },
+                { id: 'label-form-category', key: 'labelCategory' },
+                { id: 'form-category-family', key: 'catFamily', prefix: '👨‍👩‍👦 ' },
+                { id: 'form-category-friends', key: 'catFriends', prefix: '🤝 ' },
+                { id: 'form-category-work', key: 'catWork', prefix: '💼 ' },
+                { id: 'form-category-other', key: 'catOther', prefix: '✨ ' },
+                { id: 'label-form-photo', key: 'labelPhoto' },
+                { id: 'btn-upload-photo-text', key: 'uploadPhotoBtn' },
+                { id: 'upload-photo-sub', key: 'uploadPhotoSub' },
+                { id: 'label-form-emoji', key: 'labelEmoji' },
+                { id: 'label-form-notes', key: 'labelNotes' },
+                { id: 'form-cancel-btn', key: 'cancelBtn' },
+                { id: 'form-save-btn', key: 'saveBtn' },
+                { id: 'footer-text', key: 'footerText' },
+                
+                { id: 'delete-confirm-title', key: 'deleteConfirmTitle' },
+                { id: 'delete-confirm-subtitle', key: 'deleteConfirmSubtitle' },
+                { id: 'delete-cancel-btn', key: 'deleteCancelBtn' },
+                { id: 'delete-confirm-btn', key: 'deleteConfirmBtn' }
+            ];
+
+            elementsToTranslate.forEach(item => {
+                const el = document.getElementById(item.id);
+                if (el) {
+                    const text = (item.prefix || '') + t(item.key);
+                    if (item.html) {
+                        el.innerHTML = text;
+                    } else {
+                        el.innerText = text;
+                    }
+                }
+            });
+
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) searchInput.placeholder = t('searchPlaceholder');
+
+            const formName = document.getElementById('form-name');
+            if (formName) formName.placeholder = t('placeholderName');
+
+            const formNotes = document.getElementById('form-notes');
+            if (formNotes) formNotes.placeholder = t('placeholderNotes');
+
+            const ruBtn = document.getElementById('lang-btn-ru');
+            const enBtn = document.getElementById('lang-btn-en');
+            if (ruBtn && enBtn) {
+                if (currentLang === 'ru') {
+                    ruBtn.className = "px-2 sm:px-2.5 py-1 text-[10px] sm:text-xs font-bold rounded-lg bg-indigo-600 text-white shadow-sm transition-colors";
+                    enBtn.className = "px-2 sm:px-2.5 py-1 text-[10px] sm:text-xs font-bold rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors";
+                } else {
+                    ruBtn.className = "px-2 sm:px-2.5 py-1 text-[10px] sm:text-xs font-bold rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors";
+                    enBtn.className = "px-2 sm:px-2.5 py-1 text-[10px] sm:text-xs font-bold rounded-lg bg-indigo-600 text-white shadow-sm transition-colors";
+                }
+            }
+
+            const weekdaysHeader = document.getElementById('calendar-days-header');
+            if (weekdaysHeader) {
+                const days = currentLang === 'ru' 
+                    ? ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'] 
+                    : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+                weekdaysHeader.innerHTML = days.map(d => `<div>${d}</div>`).join('');
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            SafeStorage.setItem('bday_tracker_theme', isDark ? 'dark' : 'light');
+            updateThemeToggleButton();
+            showToast(isDark ? t('themeToastDark') : t('themeToastLight'));
+        }
+
+        function updateThemeToggleButton() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const sunIcon = document.getElementById('theme-icon-sun');
+            const moonIcon = document.getElementById('theme-icon-moon');
+            if (isDark) {
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            } else {
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            }
+        }
+
+        function initTheme() {
+            const savedTheme = SafeStorage.getItem('bday_tracker_theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            updateThemeToggleButton();
+        }
+
+        function triggerPhotoSelect() {
+            document.getElementById('form-photo-input').click();
+        }
+
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const size = 150;
+                    canvas.width = size;
+                    canvas.height = size;
+
+                    const minDim = Math.min(img.width, img.height);
+                    const sx = (img.width - minDim) / 2;
+                    const sy = (img.height - minDim) / 2;
+
+                    ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                    
+                    document.getElementById('form-photo-data').value = compressedDataUrl;
+                    
+                    const previewImg = document.getElementById('photo-preview-img');
+                    previewImg.src = compressedDataUrl;
+                    previewImg.classList.remove('hidden');
+                    document.getElementById('photo-preview-placeholder').classList.add('hidden');
+                    document.getElementById('remove-photo-btn').classList.remove('hidden');
+                    document.getElementById('remove-photo-btn').classList.add('flex');
+                    
+                    showToast(t('toastPhotoAdded'));
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearSelectedPhoto() {
+            document.getElementById('form-photo-input').value = '';
+            document.getElementById('form-photo-data').value = '';
+            
+            const previewImg = document.getElementById('photo-preview-img');
+            previewImg.src = '';
+            previewImg.classList.add('hidden');
+            document.getElementById('photo-preview-placeholder').classList.remove('hidden');
+            document.getElementById('remove-photo-btn').classList.add('hidden');
+            document.getElementById('remove-photo-btn').classList.remove('flex');
+        }
+
+        function renderEmojiSelectors() {
+            const container = document.getElementById('emoji-selectors');
+            container.innerHTML = '';
+            EMOJI_OPTIONS.forEach(emoji => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `w-10 h-10 shrink-0 flex items-center justify-center text-lg rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-950 transition-colors emoji-btn-select`;
+                btn.innerHTML = emoji;
+                btn.onclick = () => selectFormEmoji(emoji, btn);
+                if (emoji === '🎂') {
+                    btn.classList.add('border-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-950/40');
+                }
+                container.appendChild(btn);
+            });
+        }
+
+        function selectFormEmoji(emoji, btnElement) {
+            document.getElementById('form-emoji').value = emoji;
+            document.querySelectorAll('.emoji-btn-select').forEach(b => {
+                b.classList.remove('border-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-950/40');
+            });
+            btnElement.classList.add('border-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-950/40');
+        }
+
+        function getNextBirthdayDate(dateString) {
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            
+            const birthDate = new Date(dateString);
+            const currentYearBday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+            
+            if (currentYearBday < today) {
+                return new Date(today.getFullYear() + 1, birthDate.getMonth(), birthDate.getDate());
+            }
+            return currentYearBday;
+        }
+
+        function calculateDaysRemaining(dateString) {
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const nextBday = getNextBirthdayDate(dateString);
+            const diffTime = Math.abs(nextBday - today);
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        function calculateAge(dateString) {
+            const today = new Date();
+            const birthDate = new Date(dateString);
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age;
+        }
+
+        function formatBirthdayDate(dateString) {
+            const date = new Date(dateString);
+            const monthsRu = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+            const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            if (currentLang === 'ru') {
+                return `${date.getDate()} ${monthsRu[date.getMonth()]}`;
+            } else {
+                return `${monthsEn[date.getMonth()]} ${date.getDate()}`;
+            }
+        }
+
+        function getAgeWord(age, lang) {
+            if (lang === 'en') {
+                return age === 1 ? t('ageWordYear') : t('ageWordYears1');
+            }
+            if (age % 10 === 1 && age % 100 !== 11) return t('ageWordYear');
+            if ([2, 3, 4].includes(age % 10) && ![12, 13, 14].includes(age % 100)) return t('ageWordYears1');
+            return t('ageWordYears2');
+        }
+
+        function getZodiacSign(dateString) {
+            const d = new Date(dateString);
+            const day = d.getDate();
+            const month = d.getMonth() + 1;
+
+            if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) return { key: "Aries", emoji: "♈" };
+            if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) return { key: "Taurus", emoji: "♉" };
+            if ((month === 5 && day >= 21) || (month === 6 && day <= 20)) return { key: "Gemini", emoji: "♊" };
+            if ((month === 6 && day >= 21) || (month === 7 && day <= 22)) return { key: "Cancer", emoji: "♋" };
+            if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) return { key: "Leo", emoji: "♌" };
+            if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) return { key: "Virgo", emoji: "♍" };
+            if ((month === 9 && day >= 23) || (month === 10 && day <= 22)) return { key: "Libra", emoji: "♎" };
+            if ((month === 10 && day >= 23) || (month === 11 && day <= 21)) return { key: "Scorpio", emoji: "♏" };
+            if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) return { key: "Sagittarius", emoji: "♐" };
+            if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) return { key: "Capricorn", emoji: "♑" };
+            if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) return { key: "Aquarius", emoji: "♒" };
+            return { key: "Pisces", emoji: "♓" };
+        }
+
+        function filterCategory(category) {
+            currentFilter = category;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = "filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors whitespace-nowrap";
+            });
+            
+            const mapping = {
+                'all': 'filter-all',
+                'family': 'filter-family',
+                'friends': 'filter-friends',
+                'work': 'filter-work',
+                'other': 'filter-other'
+            };
+            
+            const activeId = mapping[category];
+            if (activeId) {
+                document.getElementById(activeId).className = "filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition-colors whitespace-nowrap";
+            }
+
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            const sortBy = document.getElementById('sort-select').value;
+            
+            let filtered = birthdays.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(query);
+                const matchesCategory = (currentFilter === 'all' || item.category === currentFilter);
+                return matchesSearch && matchesCategory;
+            });
+
+            if (sortBy === 'upcoming') {
+                filtered.sort((a, b) => calculateDaysRemaining(a.date) - calculateDaysRemaining(b.date));
+            } else if (sortBy === 'alphabet') {
+                filtered.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortBy === 'age') {
+                filtered.sort((a, b) => calculateAge(b.date) - calculateAge(a.date));
+            }
+
+            renderBirthdaysList(filtered);
+            updateStats();
+        }
+
+        function renderBirthdaysList(list) {
+            const container = document.getElementById('birthdays-container');
+            const emptyState = document.getElementById('empty-state');
+            container.innerHTML = '';
+
+            document.getElementById('list-count').innerText = list.length;
+
+            if (list.length === 0) {
+                emptyState.classList.remove('hidden');
+                container.classList.add('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.classList.remove('hidden');
+
+            list.forEach(item => {
+                const daysLeft = calculateDaysRemaining(item.date);
+                const currentAge = calculateAge(item.date);
+                const isToday = daysLeft === 0 || daysLeft === 365 || daysLeft === 366;
+                const zodiac = getZodiacSign(item.date);
+                const zodiacName = t('zodiac' + zodiac.key);
+
+                let cardBg = isToday 
+                    ? 'from-indigo-50/70 to-purple-50/70 dark:from-indigo-950/40 dark:to-purple-950/40 border-indigo-200 dark:border-indigo-800 shadow-md shadow-indigo-50 dark:shadow-none animate-pulse' 
+                    : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800/80 hover:border-slate-200 dark:hover:border-slate-700 shadow-sm';
+                
+                let tagColor = '';
+                let tagText = '';
+
+                if (item.category === 'family') {
+                    tagColor = 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400';
+                    tagText = t('catFamily');
+                } else if (item.category === 'friends') {
+                    tagColor = 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400';
+                    tagText = t('catFriends');
+                } else if (item.category === 'work') {
+                    tagColor = 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400';
+                    tagText = t('catWork');
+                } else {
+                    tagColor = 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300';
+                    tagText = t('catOther');
+                }
+
+                let avatarHTML = '';
+                if (item.photo) {
+                    avatarHTML = `<img src="${item.photo}" class="w-12 h-12 rounded-xl object-cover border border-slate-100 dark:border-slate-800 shadow-inner shrink-0" alt="${item.name}">`;
+                } else {
+                    avatarHTML = `<span class="w-12 h-12 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-xl flex items-center justify-center text-2xl shadow-inner shrink-0">${item.emoji || '🎂'}</span>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = `p-4 sm:p-5 rounded-2xl border bg-gradient-to-tr transition-all duration-300 relative flex flex-col justify-between ${cardBg}`;
+                
+                let remainingHTML = '';
+                if (isToday) {
+                    remainingHTML = `<span class="text-xs font-bold text-rose-500 dark:text-rose-400 animate-bounce block">${t('celebratingToday')}</span>`;
+                } else {
+                    const ageWord = getAgeWord(currentAge + 1, currentLang);
+                    if (currentLang === 'ru') {
+                        remainingHTML = `<span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Исполнится <strong class="text-indigo-600 dark:text-indigo-400 font-extrabold">${currentAge + 1}</strong> ${ageWord} через <strong class="text-indigo-600 dark:text-indigo-400 font-extrabold">${daysLeft}</strong> ${t('daysShort')}</span>`;
+                    } else {
+                        remainingHTML = `<span class="text-xs text-slate-500 dark:text-slate-400 font-medium">${t('willTurn')} <strong class="text-indigo-600 dark:text-indigo-400 font-extrabold">${currentAge + 1}</strong> ${ageWord} ${t('inDays')} <strong class="text-indigo-600 dark:text-indigo-400 font-extrabold">${daysLeft}</strong> ${t('daysShort')}</span>`;
+                    }
+                }
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex items-center gap-3">
+                                ${avatarHTML}
+                                <div class="min-w-0">
+                                    <h4 class="font-bold text-slate-800 dark:text-slate-100 text-xs sm:text-sm leading-tight flex items-center gap-1.5 truncate">
+                                        ${item.name}
+                                        ${isToday ? '🎈' : ''}
+                                    </h4>
+                                    <p class="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-1 flex flex-wrap items-center gap-1.5">
+                                        <span>🎂 ${formatBirthdayDate(item.date)}</span>
+                                        <span class="hidden xs:inline">•</span>
+                                        <span class="bg-indigo-50 dark:bg-indigo-950/60 text-indigo-500 dark:text-indigo-400 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px]">${zodiac.emoji} ${zodiacName}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-0.5 shrink-0">
+                                <button onclick="editBirthday('${item.id}')" title="Редактировать" class="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all text-xs">✏️</button>
+                                <button onclick="deleteBirthday('${item.id}')" title="Удалить" class="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all text-xs">🗑️</button>
+                            </div>
+                        </div>
+
+                        ${item.notes ? `<p class="mt-3 text-xs text-slate-500 dark:text-slate-400 bg-slate-50/80 dark:bg-slate-950/40 p-2 rounded-lg border border-slate-100/60 dark:border-slate-850/60 leading-relaxed italic">"${item.notes}"</p>` : ''}
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-50 dark:border-slate-850/40 flex justify-between items-center">
+                        <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wide px-2 py-0.5 sm:py-1 rounded-lg ${tagColor}">${tagText}</span>
+                        <div class="text-right">
+                            ${remainingHTML}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function updateStats() {
+            const total = birthdays.length;
+            document.getElementById('stat-total').innerText = total;
+
+            const today = new Date();
+            let countThisMonth = 0;
+            let countUpcoming = 0;
+            let countToday = 0;
+
+            const zodiacCounts = {};
+            let totalAge = 0;
+            let ageCount = 0;
+
+            birthdays.forEach(item => {
+                const daysLeft = calculateDaysRemaining(item.date);
+                const bdate = new Date(item.date);
+                const currentAge = calculateAge(item.date);
+
+                if (bdate.getMonth() === today.getMonth()) countThisMonth++;
+                if (daysLeft > 0 && daysLeft <= 30) countUpcoming++;
+                if (daysLeft === 0 || daysLeft === 365 || daysLeft === 366) countToday++;
+
+                const z = getZodiacSign(item.date).key;
+                zodiacCounts[z] = (zodiacCounts[z] || 0) + 1;
+
+                if (currentAge > 0) {
+                    totalAge += currentAge;
+                    ageCount++;
+                }
+            });
+
+            document.getElementById('stat-this-month').innerText = countThisMonth;
+            document.getElementById('stat-upcoming').innerText = countUpcoming;
+            document.getElementById('stat-today').innerText = `${countToday} 🎉`;
+
+            let topZodiac = "-";
+            let maxCount = 0;
+            for (const [z, count] of Object.entries(zodiacCounts)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    topZodiac = t('zodiac' + z);
+                }
+            }
+            document.getElementById('astro-top-zodiac').innerText = topZodiac;
+
+            const avgAge = ageCount > 0 ? Math.round(totalAge / ageCount) : null;
+            document.getElementById('astro-average-age').innerText = avgAge ? `${avgAge} ${getAgeWord(avgAge, currentLang)}` : '-';
+
+            let closestJubilee = null;
+            let minDays = Infinity;
+            birthdays.forEach(item => {
+                const currentAge = calculateAge(item.date);
+                const nextAge = currentAge + 1;
+                if (nextAge % 10 === 0 || nextAge % 5 === 0) {
+                    const daysLeft = calculateDaysRemaining(item.date);
+                    if (daysLeft < minDays) {
+                        minDays = daysLeft;
+                        const ageWord = getAgeWord(nextAge, currentLang);
+                        closestJubilee = `${item.name} (${nextAge} ${ageWord})`;
+                    }
+                }
+            });
+            document.getElementById('astro-next-jubilee').innerText = closestJubilee ? closestJubilee : t('closestJubileeNone');
+        }
+
+        function openAddModal() {
+            document.getElementById('birthday-form').reset();
+            document.getElementById('edit-id').value = '';
+            document.getElementById('modal-title').innerText = t('addModalTitle');
+            document.getElementById('form-emoji').value = '🎂';
+            clearSelectedPhoto();
+            renderEmojiSelectors();
+            
+            const modal = document.getElementById('add-modal');
+            const content = document.getElementById('add-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('translate-y-full', 'sm:scale-95', 'opacity-0');
+            }, 50);
+        }
+
+        function closeAddModal() {
+            const modal = document.getElementById('add-modal');
+            const content = document.getElementById('add-modal-content');
+            content.classList.add('translate-y-full', 'sm:scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function saveBirthday(e) {
+            e.preventDefault();
+
+            const editId = document.getElementById('edit-id').value;
+            const name = document.getElementById('form-name').value;
+            const date = document.getElementById('form-date').value;
+            const category = document.getElementById('form-category').value;
+            const emoji = document.getElementById('form-emoji').value;
+            const notes = document.getElementById('form-notes').value;
+            const photo = document.getElementById('form-photo-data').value;
+
+            if (editId) {
+                const index = birthdays.findIndex(item => item.id === editId);
+                if (index !== -1) {
+                    birthdays[index] = { id: editId, name, date, category, emoji, notes, photo };
+                    showToast(t('toastSuccessEdit'));
+                }
+            } else {
+                const newId = 'bday-' + Date.now();
+                birthdays.push({ id: newId, name, date, category, emoji, notes, photo });
+                showToast(t('toastSuccessAdd'));
+                triggerConfetti();
+            }
+
+            saveToLocalStorage();
+            applyFilters();
+            renderCalendar();
+            triggerTodayCelebrations();
+            closeAddModal();
+        }
+
+        function editBirthday(id) {
+            const item = birthdays.find(x => x.id === id);
+            if (!item) return;
+
+            document.getElementById('edit-id').value = item.id;
+            document.getElementById('form-name').value = item.name;
+            document.getElementById('form-date').value = item.date;
+            document.getElementById('form-category').value = item.category;
+            document.getElementById('form-emoji').value = item.emoji;
+            document.getElementById('form-notes').value = item.notes || '';
+
+            if (item.photo) {
+                document.getElementById('form-photo-data').value = item.photo;
+                const previewImg = document.getElementById('photo-preview-img');
+                previewImg.src = item.photo;
+                previewImg.classList.remove('hidden');
+                document.getElementById('photo-preview-placeholder').classList.add('hidden');
+                document.getElementById('remove-photo-btn').classList.remove('hidden');
+                document.getElementById('remove-photo-btn').classList.add('flex');
+            } else {
+                clearSelectedPhoto();
+            }
+
+            const container = document.getElementById('emoji-selectors');
+            container.querySelectorAll('.emoji-btn-select').forEach(b => {
+                b.classList.remove('border-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-950/40');
+                if (b.innerText === item.emoji) {
+                    b.classList.add('border-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-950/40');
+                }
+            });
+
+            document.getElementById('modal-title').innerText = t('editModalTitle');
+            
+            const modal = document.getElementById('add-modal');
+            const content = document.getElementById('add-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('translate-y-full', 'sm:scale-95', 'opacity-0');
+            }, 50);
+        }
+
+        function deleteBirthday(id) {
+            deleteTargetId = id;
+            openDeleteModal();
+        }
+
+        function openDeleteModal() {
+            const modal = document.getElementById('delete-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('delete-modal-content').classList.remove('translate-y-full', 'sm:scale-95', 'opacity-0');
+            }, 50);
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('delete-modal');
+            const content = document.getElementById('delete-modal-content');
+            content.classList.add('translate-y-full', 'sm:scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                deleteTargetId = null;
+            }, 300);
+        }
+
+        function confirmDelete() {
+            if (deleteTargetId) {
+                birthdays = birthdays.filter(x => x.id !== deleteTargetId);
+                saveToLocalStorage();
+                applyFilters();
+                renderCalendar();
+                triggerTodayCelebrations();
+                showToast(t('toastDeleted'), 'warning');
+            }
+            closeDeleteModal();
+        }
+
+        function renderCalendar() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth();
+
+            const monthNamesRu = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+            const monthNamesEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const monthName = currentLang === 'ru' ? monthNamesRu[month] : monthNamesEn[month];
+            document.getElementById('calendar-month-name').innerText = `${monthName} ${year}`;
+
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const totalDays = new Date(year, month + 1, 0).getDate();
+
+            const correctedFirstDay = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < correctedFirstDay; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'p-1';
+                grid.appendChild(cell);
+            }
+
+            for (let day = 1; day <= totalDays; day++) {
+                const cell = document.createElement('div');
+                cell.className = 'p-1 text-center relative font-semibold text-[11px] sm:text-xs rounded-lg transition-all h-7 flex items-center justify-center cursor-default';
+                cell.innerText = day;
+
+                const isCurrentToday = (day === today.getDate());
+                
+                const hasBirthday = birthdays.some(item => {
+                    const bdate = new Date(item.date);
+                    return bdate.getDate() === day && bdate.getMonth() === month;
+                });
+
+                if (hasBirthday) {
+                    cell.className += ' bg-gradient-to-tr from-indigo-500 to-purple-500 text-white shadow-sm shadow-indigo-100 dark:shadow-none font-bold';
+                    cell.title = 'Birthday is today!';
+                } else if (isCurrentToday) {
+                    cell.className += ' bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200';
+                } else {
+                    cell.className += ' hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300';
+                }
+
+                grid.appendChild(cell);
+            }
+        }
+
+        function triggerTodayCelebrations() {
+            const todayNames = [];
+            birthdays.forEach(item => {
+                const daysLeft = calculateDaysRemaining(item.date);
+                if (daysLeft === 0 || daysLeft === 365 || daysLeft === 366) {
+                    todayNames.push(`${item.emoji || '🎂'} ${item.name}`);
+                }
+            });
+
+            const box = document.getElementById('today-celebration-box');
+            if (todayNames.length > 0) {
+                box.classList.remove('hidden');
+                document.getElementById('today-names-list').innerHTML = `${t('todayCelebrationsListPrefix')} <strong>${todayNames.join(', ')}</strong>${t('todayCelebrationsListSuffix')}`;
+                setTimeout(() => {
+                    triggerConfetti();
+                }, 800);
+            } else {
+                box.classList.add('hidden');
+            }
+        }
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 120,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: ['#4f46e5', '#a855f7', '#ec4899', '#3b82f6', '#10b981']
+                });
+            }
+        }
+
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(birthdays, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `birthdays-backup-${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast(t('toastSuccessBackup'));
+        }
+
+        function triggerImport() {
+            document.getElementById('import-file').click();
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (Array.isArray(parsed)) {
+                        birthdays = parsed;
+                        migrateCategories();
+                        saveToLocalStorage();
+                        applyFilters();
+                        renderCalendar();
+                        triggerTodayCelebrations();
+                        showToast(t('toastSuccessImport'));
+                    } else {
+                        showToast(t('toastErrorImport'), 'error');
+                    }
+                } catch (err) {
+                    showToast(t('toastErrorRead'), 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Custom responsive alert Toast system
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let colorClasses = 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-800 dark:text-slate-100 shadow-xl';
+            let icon = 'ℹ️';
+
+            if (type === 'success') {
+                colorClasses = 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 dark:shadow-none border-indigo-500';
+                icon = '✨';
+            } else if (type === 'warning') {
+                colorClasses = 'bg-amber-500 text-white shadow-lg shadow-amber-100 dark:shadow-none border-amber-400';
+                icon = '⚠️';
+            } else if (type === 'error') {
+                colorClasses = 'bg-rose-600 text-white shadow-lg shadow-rose-100 dark:shadow-none border-rose-500';
+                icon = '🚨';
+            }
+
+            toast.className = `px-4 py-3 rounded-2xl border text-xs font-bold flex items-center gap-2 transform translate-y-2 opacity-0 transition-all duration-300 pointer-events-auto ${colorClasses}`;
+            toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 50);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
